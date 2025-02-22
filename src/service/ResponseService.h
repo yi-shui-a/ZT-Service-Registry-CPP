@@ -4,6 +4,9 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+
+#include "../model/ResponseInfo.h"
+
 #include <nlohmann/json.hpp>
 
 // 使用 nlohmann/json 库
@@ -11,11 +14,11 @@ using json = nlohmann::json;
 
 class ResponseService {
 private:
-    json response;
+    ResponseInfo response;
 
 public:
     // 构造函数
-    ResponseService(const std::string& filePath);
+    ResponseService(ResponseInfo response);
     
 
 };
