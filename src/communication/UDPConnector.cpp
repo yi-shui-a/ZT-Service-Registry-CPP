@@ -95,12 +95,13 @@ void UDPconnector(Config *config, int channel)
             }
             else
             {
-                responseMessage = responseInfo.getResponse();
+                responseMessage = responseInfo.exportResponse();
             }
         }
         catch (const std::exception &e)
         {
             std::cerr << e.what() << '\n';
+            std::cerr << "INFO: restart to receive information." << '\n';
             continue;
         }
 
@@ -149,22 +150,58 @@ ResponseInfo handleRequest(std::string dataStr)
     case 1:
         printf("mission: 1\n");
         // strcpy(response_message, processRegisterMessage(database, data_buffer));
-        resJson = RequestController::handleRegister(requestInfo);
+        try
+        {
+            resJson = RequestController::handleRegister(requestInfo);
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+            std::cout << "WARNNING: handleRegister error" << std::endl;
+            throw;
+        }
         break;
     case 3:
         printf("mission: 3\n");
         // strcpy(response_message, processMetaRegisterMessage(database, data_buffer));
-        resJson = RequestController::handleMetaRegister(requestInfo);
+        try
+        {
+            resJson = RequestController::handleMetaRegister(requestInfo);
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+            std::cout << "WARNNING: handleMetaRegister error" << std::endl;
+            throw;
+        }
         break;
     case 5:
         printf("mission: 5\n");
         // strcpy(response_message, processQuery(database, data_buffer));
-        resJson = RequestController::handleQuery(requestInfo);
+        try
+        {
+            resJson = RequestController::handleQuery(requestInfo);
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+            std::cout << "WARNNING: handleQuery error" << std::endl;
+            throw;
+        }
         break;
     case 7:
         printf("mission: 7\n");
         // processHeartbeat(database, data_buffer);
-        resJson = RequestController::handleHeartbeat(requestInfo);
+        try
+        {
+            resJson = RequestController::handleHeartbeat(requestInfo);
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+            std::cout << "WARNNING: handleHeartbeat error" << std::endl;
+            throw;
+        }
         break;
     default:
         printf("Received error message");
