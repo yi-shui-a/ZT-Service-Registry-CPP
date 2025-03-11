@@ -2,8 +2,12 @@
 
 // 初始化静态成员变量
 Config* Config::instance = nullptr;
+// 配置文件路径
 std::string Config::configFilePath = "";
+// 仓库数据持久化间隔 /s
 size_t Config::DATABASE_PERSISTENCE_INTERVAL = 5;
+// 
+
 size_t Config::READ_BUFFER_SIZE = 16;
 size_t Config::CORE_BUFFER_SIZE = 1024;
 size_t Config::READ_TIME_INTERTAL = 1;
@@ -25,11 +29,20 @@ Config::Config(const std::string& filePath) {
         file >> configData;
         file.close();
     } else {
-        std::cerr << "Failed to open config file: " << filePath << std::endl;
+        std::cout << "Failed to open config file: " << filePath << std::endl;
+        std::cout << "SUCCESS: config created" << std::endl;
+        return;
     }
     try {
         READ_BUFFER_SIZE = configData["READ_BUFFER_SIZE"];
+    } catch (const std::exception& e) {
+        std::cout << "config not exist READ_BUFFER_SIZE" << '\n';
+    }
+    try{
         CORE_BUFFER_SIZE = configData["CORE_BUFFER_SIZE"];
+    }
+
+            CORE_BUFFER_SIZE = configData["CORE_BUFFER_SIZE"];
         READ_TIME_INTERTAL = configData["READ_TIME_INTERTAL"];
         HEARTBEAT_TIME_INTERTAL = configData["HEARTBEAT_TIME_INTERTAL"];
         STANDBY_HEARTBEAT_TIME_INTERTAL = configData["STANDBY_HEARTBEAT_TIME_INTERTAL"];
@@ -39,10 +52,6 @@ Config::Config(const std::string& filePath) {
         SERVER_PORT = configData["SERVER_PORT"];
         MANAGE_PORT = configData["MANAGE_PORT"];
         DATABASE_NAME = configData["DATABASE_NAME"];
-    } catch (const std::exception& e) {
-        std::cerr << e.what() << '\n';
-        std::cerr << "config content error" << '\n';
-    }
 }
 
 // 获取单例实例的静态方法

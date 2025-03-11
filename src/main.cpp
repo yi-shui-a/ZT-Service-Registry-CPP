@@ -12,7 +12,7 @@
 
 #include "config/ConfigUtil.cpp"
 #include "config/Config.h"
-#include "communication/UDPConnector.h"
+#include "com/UDPConnector.h"
 #include "utils/Util.h"
 // #include "utils/DBUtil.h"
 #include "service/DBService.h"
