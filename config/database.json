@@ -4,7 +4,7 @@
             "service_name": "UserService",
             "metadata": {
                 "version": "v1.0.0",
-                "decription":"asdasfadf",
+                "description":"asdasfadf",
                 "developer":"zhangsan",
                 "build_time":4356456432
             },
@@ -49,7 +49,7 @@
             "service_name": "OrderService",
             "metadata": {
                 "version": "v1.0.0",
-                "decription":"asdasfadf",
+                "description":"asdasfadf",
                 "developer":"zhangsan",
                 "build_time":5564643541231
             },

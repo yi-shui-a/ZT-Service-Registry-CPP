@@ -23,10 +23,10 @@ private:
     static size_t READ_BUFFER_SIZE;
     //操作系统的读取缓冲区大小
     static size_t CORE_BUFFER_SIZE;
-    static size_t READ_TIME_INTERTAL;
-    static size_t HEARTBEAT_TIME_INTERTAL;
+    static size_t READ_TIME_INTERVAL;
+    static size_t HEARTBEAT_TIME_INTERVAL;
     // 主备检测的时间间隔
-    static size_t STANDBY_HEARTBEAT_TIME_INTERTAL;
+    static size_t STANDBY_HEARTBEAT_TIME_INTERVAL;
     // 微服务超时间隔
     static size_t SERVICE_INSTANCE_TIMEOUT;
     //数据库持久化间隔

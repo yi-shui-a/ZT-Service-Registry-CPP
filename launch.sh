@@ -1,1 +1,1 @@
-./bin/registry
+./bin/registry --configPath ./config.json

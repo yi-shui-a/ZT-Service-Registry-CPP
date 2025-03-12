@@ -11,7 +11,7 @@ int getDigit(int number);
 time_t getReceiveSendTime(cJSON *data)
 {
     cJSON *header = cJSON_GetObjectItemCaseSensitive(data, "header");
-    cJSON *send_time = cJSON_GetObjectItemCaseSensitive(header, "send_time");
+    cJSON *send_time = cJSON_GetObjectItemCaseSensitive(header, "sendTime");
     time_t time_res = send_time->valueint;
     return time_res;
 };
@@ -28,7 +28,7 @@ uint8_t getReceiveType(cJSON *data)
 char *addServiceInstanceRegister(cJSON *database, cJSON *data)
 {
     // 读取关键信息
-    cJSON *send_time = cJSON_GetObjectItemCaseSensitive(cJSON_GetObjectItemCaseSensitive(data, "header"), "send_time");
+    cJSON *send_time = cJSON_GetObjectItemCaseSensitive(cJSON_GetObjectItemCaseSensitive(data, "header"), "sendTime");
     cJSON *server_name = cJSON_GetObjectItemCaseSensitive(data, "server_name");
     cJSON *address = cJSON_GetObjectItemCaseSensitive(data, "address");
     cJSON *port = cJSON_GetObjectItemCaseSensitive(data, "port");
@@ -92,7 +92,7 @@ char *addServiceInstanceRegister(cJSON *database, cJSON *data)
                     cJSON_AddNumberToObject(new_instance, "role", cJSON_GetObjectItemCaseSensitive(temp_register_service, "role")->valueint);
                     // 添加元数据
                     // cJSON_AddItemToObject(new_instance, "metadata", cJSON_CreateObject());
-                    // cJSON_AddNumberToObject(cJSON_GetObjectItemCaseSensitive(new_instance, "metadata"), "create_time", send_time->valueint);
+                    // cJSON_AddNumberToObject(cJSON_GetObjectItemCaseSensitive(new_instance, "metadata"), "create_time", sendTime->valueint);
                     // 将新实例添加到instances数组里
                     cJSON_AddItemToArray(cJSON_GetObjectItemCaseSensitive(temp_service, "instances"), new_instance);
 
@@ -135,7 +135,7 @@ char *addServiceInstanceRegister(cJSON *database, cJSON *data)
             cJSON_AddNumberToObject(new_instance, "role", cJSON_GetObjectItemCaseSensitive(temp_register_service, "role")->valueint);
             // 添加元数据
             // cJSON_AddItemToObject(new_instance, "metadata", cJSON_CreateObject());
-            // cJSON_AddNumberToObject(cJSON_GetObjectItemCaseSensitive(new_instance, "metadata"), "create_time", send_time->valueint);
+            // cJSON_AddNumberToObject(cJSON_GetObjectItemCaseSensitive(new_instance, "metadata"), "create_time", sendTime->valueint);
             // 将新实例添加到instances数组里
             cJSON_AddItemToArray(cJSON_GetObjectItemCaseSensitive(temp_service, "instances"), new_instance);
 
@@ -156,7 +156,7 @@ char *addServiceInstanceRegister(cJSON *database, cJSON *data)
 char *addServiceInstanceMetadata(cJSON *database, cJSON *data)
 {
     // 读取关键信息
-    cJSON *send_time = cJSON_GetObjectItemCaseSensitive(cJSON_GetObjectItemCaseSensitive(data, "header"), "send_time");
+    cJSON *send_time = cJSON_GetObjectItemCaseSensitive(cJSON_GetObjectItemCaseSensitive(data, "header"), "sendTime");
     cJSON *server_name = cJSON_GetObjectItemCaseSensitive(data, "server_name");
     cJSON *address = cJSON_GetObjectItemCaseSensitive(data, "address");
     cJSON *port = cJSON_GetObjectItemCaseSensitive(data, "port");
@@ -400,7 +400,7 @@ char *query(cJSON *database, cJSON *req_data)
 void resetHeartbeatTime(cJSON *database, cJSON *data)
 {
     // 读取关键信息
-    cJSON *send_time = cJSON_GetObjectItemCaseSensitive(cJSON_GetObjectItemCaseSensitive(data, "header"), "send_time");
+    cJSON *send_time = cJSON_GetObjectItemCaseSensitive(cJSON_GetObjectItemCaseSensitive(data, "header"), "sendTime");
     cJSON *server_name = cJSON_GetObjectItemCaseSensitive(data, "server_name");
     cJSON *address = cJSON_GetObjectItemCaseSensitive(data, "address");
     cJSON *port = cJSON_GetObjectItemCaseSensitive(data, "port");
@@ -442,19 +442,19 @@ char *processResponse(cJSON *response, uint8_t type)
     time(&send_time);
     // 编写报头
     cJSON_AddItemToObject(response, "header", cJSON_CreateObject());
-    cJSON_AddNumberToObject(cJSON_GetObjectItemCaseSensitive(response, "header"), "protocol_identifier", 22);
-    cJSON_AddNumberToObject(cJSON_GetObjectItemCaseSensitive(response, "header"), "send_time", send_time);
-    cJSON_AddNumberToObject(cJSON_GetObjectItemCaseSensitive(response, "header"), "message_length", 0);
-    cJSON_AddNumberToObject(cJSON_GetObjectItemCaseSensitive(response, "header"), "message_serial_number", 1);
-    cJSON_AddNumberToObject(cJSON_GetObjectItemCaseSensitive(response, "header"), "check_bit", 2);
+    cJSON_AddNumberToObject(cJSON_GetObjectItemCaseSensitive(response, "header"), "identifier", 22);
+    cJSON_AddNumberToObject(cJSON_GetObjectItemCaseSensitive(response, "header"), "sendTime", send_time);
+    cJSON_AddNumberToObject(cJSON_GetObjectItemCaseSensitive(response, "header"), "messageLength", 0);
+    cJSON_AddNumberToObject(cJSON_GetObjectItemCaseSensitive(response, "header"), "serialNumber", 1);
+    cJSON_AddNumberToObject(cJSON_GetObjectItemCaseSensitive(response, "header"), "checkBit", 2);
     cJSON_AddNumberToObject(cJSON_GetObjectItemCaseSensitive(response, "header"), "type", type);
     char *reponse_str = cJSON_Print(response);
     // 更新报文长度,不包括字符串末尾的\0
     int i = strlen(reponse_str);
     i = i + getDigit(i);
     i -= 1;
-    // cJSON_GetObjectItemCaseSensitive(cJSON_GetObjectItemCaseSensitive(response, "header"), "message_length")->valuedouble = i;
-    cJSON_SetNumberValue(cJSON_GetObjectItemCaseSensitive(cJSON_GetObjectItemCaseSensitive(response, "header"), "message_length"), i);
+    // cJSON_GetObjectItemCaseSensitive(cJSON_GetObjectItemCaseSensitive(response, "header"), "messageLength")->valuedouble = i;
+    cJSON_SetNumberValue(cJSON_GetObjectItemCaseSensitive(cJSON_GetObjectItemCaseSensitive(response, "header"), "messageLength"), i);
     free(reponse_str);
     reponse_str = cJSON_Print(response);
     printf("%s", reponse_str);
@@ -514,9 +514,9 @@ void test()
 
 //     // printf("CORE_BUFFER_SIZE: %zu\n", conn.CORE_BUFFER_SIZE);
 
-//     // printf("READ_TIME_INTERTAL: %zu\n", conn.READ_TIME_INTERTAL);
+//     // printf("READ_TIME_INTERVAL: %zu\n", conn.READ_TIME_INTERVAL);
 
-//     // printf("HEARTBEAT_TIME_INTERTAL: %zu\n", conn.HEARTBEAT_TIME_INTERTAL);
+//     // printf("HEARTBEAT_TIME_INTERVAL: %zu\n", conn.HEARTBEAT_TIME_INTERVAL);
 
 //     // printf("ADDRESS: %s\n", conn.ADDRESS);
 

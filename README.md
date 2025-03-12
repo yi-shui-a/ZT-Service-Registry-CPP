@@ -5,12 +5,30 @@
 
 # 配置详情
 ## 通信类型
-+ server端发送消息是广播。
-+ 客户端查询消息是单播。
-+ 管理端管理消息也是单播。
-+ 8888端口：注册、元数据、查询、心跳。8889端口：管理相关服务。
++ 远程服务发送的消息都是广播。
++ 用户向注册中心查询消息是单播。
++ 管理端管理消息是单播。
++ 10450端口：注册、元数据、查询、心跳。
++ 10451端口：管理相关服务。
 
-## 报文信息
+## 报头信息
+这些属性在目前的使用中，除了send_time和type之外，只用来占位，不包含实际意义。
+1. 协议标识符，identifier，int32_t。
+2. 信息发送时间，sendTime，long long。
+3. 报文长度，messageLength，int32_t
+4. 报文流水号,serialNumber，int32_t
+5. 校验位，checkBit，int32_t
+6. 消息类型，type，int32_t
+   1. register, 注册报文, type = 1。
+   2. register_response, 注册回复报文, type = 2。
+   3. matadata, 元数据注册报文, type = 3。
+   4. matadata_response, 元数据注册回复报文, type = 4。
+   5. query, 查询报文, type = 5。
+   6. query_response, 查询回复报文, type = 6。
+   7. heartbeat, 心跳报文, type = 7。
+   8. manage, 管理消息报文, type = 8。
+   9. manage_response, 管理消息回复报文, type = 9。
+
 1. status,服务状态分为UP和SHUTUP，即运行状态和关闭状态。后续可能加入例如 "UP"（服务正常），"DOWN"（服务不可用），"STARTING"（服务启动中），"OUT_OF_SERVICE"（服务下线），"UNKNOWN"（未知状态）等。
 2. role，服务的优先级，即主备份，0为主份，1为备份，数字越大，优先级越低。另一种方法是使用字符串，primary为主份，backup为备份。
 3. card，板卡的id。
@@ -22,23 +40,6 @@
 9. 注册完后，回复status，1代表成功，2代表失败。
 10. ip_num，返回的地址的数量，0代表全部返回，0以上的数字代表返回的数目。
 
-
-这些属性在目前的使用中，除了send_time和type之外，只用来占位，不包含实际意义。
-1. protocol_identifier，协议标识符，size_t。
-2. send_time，信息发送时间，time_t
-3. message_length，报文长度，size_t
-4. message_serial_number,报文流水号,size_t
-5. check_bit，校验位，uint8_t
-6. type，消息类型，uint8_t
-   1. register, 注册报文, type = 1。
-   2. register_response, 注册回复报文, type = 2。
-   3. matadata, 元数据注册报文, type = 3。
-   4. matadata_response, 元数据注册回复报文, type = 4。
-   5. query, 查询报文, type = 5。
-   6. query_response, 查询回复报文, type = 6。
-   7. heartbeat, 心跳报文, type = 7。
-   8. manage, 管理消息报文, type = 8。
-   9. manage_response, 管理消息回复报文, type = 9。
 
 
 

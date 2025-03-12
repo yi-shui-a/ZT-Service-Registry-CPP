@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
         config = Config::getInstance(configPath);
         // 获取设备锁
         // 如果能获取，作为主份持续运行;如果不能获取，作为备份，持续心跳，等待成为主份
+        // TODO: 未来需要改为抢占式，先抢到的成为主份。（根据时间）
         getMainLock(config);
     }
     catch (const std::exception &e)
@@ -172,7 +173,7 @@ void unlock_file(int fd)
 void getMainLock(Config *config)
 {
     std::string lockfile = config->getLockFile();
-    time_t STANDBY_HEARTBEAT_TIME_INTERTAL = config->getStandbyHeartbeatTimeInterval();
+    time_t STANDBY_HEARTBEAT_TIME_INTERVAL = config->getStandbyHeartbeatTimeInterval();
     int fd;
 
     while (true)
@@ -192,7 +193,7 @@ void getMainLock(Config *config)
             std::cout << "[ERROR] " << config->getAddress() << " Failed to check lock." << std::endl;
         }
 
-        sleep(STANDBY_HEARTBEAT_TIME_INTERTAL);
+        sleep(STANDBY_HEARTBEAT_TIME_INTERVAL);
         fd = try_lock_file(lockfile);
         if (fd > 0)
         {
