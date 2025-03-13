@@ -8,5 +8,7 @@
         "type": 8
     },
     "request_name": "getAllServices",
-    "data": {}
+    "params":[],
+    "params_type":[]
+    
 }

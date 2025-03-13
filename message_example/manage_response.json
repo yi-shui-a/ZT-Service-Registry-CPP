@@ -7,13 +7,16 @@
         "check_bit": 4,
         "type": 9
     },
-    "request_name": "getAllServices",
-    "response": {
-        "status": 1,
-        "services": [
-            "register",
-            "fhkiahsdfjk",
-            "gjshjksdhfkj"
-        ]
+    "status": 200,
+    "message": "success",
+    "data": {
+        "request": "getAllServices",
+        "response":{
+            "services": [
+                "register",
+                "fhkiahsdfjk",
+                "gjshjksdhfkj"
+            ]
+        }
     }
 }

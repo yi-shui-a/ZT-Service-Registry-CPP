@@ -5,10 +5,8 @@
 #include <fstream>
 #include <string>
 
-#include "../model/RequestInfo.h"
-// #include "../model/ResponseInfo.h"
-#include "../service/RequestService.h"
-#include "../service/ResponseService.h"
+#include "../model/entity/Header.h"
+#include "../service/RegisterService.h"
 
 #include <nlohmann/json.hpp>
 
@@ -29,10 +27,10 @@ class RequestController {
 
 
 public:
-    static json handleRegister(RequestInfo request);
-    static json handleMetaRegister(RequestInfo request);
-    static json handleQuery(RequestInfo request);
-    static json handleHeartbeat(RequestInfo request);
+    static json handleRegister(Header& header,json& content);
+    static json handleMetaRegister(Header& header,json& content);
+    static json handleQuery(Header& header,json& content);
+    static json handleHeartbeat(Header& header,json& content);
     
 };
 

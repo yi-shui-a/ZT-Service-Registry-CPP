@@ -1,6 +1,6 @@
 #include "UDPConnector.h"
 
-void UDPconnector(Config *config, int channel)
+void connector(Config *config, int channel)
 {
     // 设置端口
     int PORT;
@@ -65,6 +65,11 @@ void UDPconnector(Config *config, int channel)
 
     while (1)
     {
+        /**
+         * 
+         * @brief 以阻塞的方式接收udp数据包
+         * 
+         */
         // 清空 buffer，避免残留数据影响
         memset(buffer, 0, config->getReadBufferSize());
         // 阻塞接收数据
@@ -81,29 +86,47 @@ void UDPconnector(Config *config, int channel)
         std::cout << "Received message:\n"
                   << buffer << std::endl;
 
-        // 将接收到的数据存储到std::string中
+        /**
+         * 
+         * @brief 解析dataStr中的数据
+         * 
+         * @param dataStr 接收到的数据包
+         * 
+         * @return 1. 返回Header对象
+         * @return 2. 返回报文json对象
+         * 
+         * @attention 报头是序列化后的数据(长度为28字节)，报文正文是json字符串
+         * 
+         */
         std::string dataStr(buffer, received_len);
-        // 处理接收到的请求数据
-        std::string responseMessage;
+        std::string headerStr = dataStr.substr(0,28);
+        std::string contentStr = dataStr.substr(28);
+        Header header = parseHeader(headerStr);
+        json contentJson = parseContent(contentStr);
+
+        /**
+         * 
+         * @brief 处理接收到的请求数据
+         * 
+         */
         try
         {
-            ResponseInfo responseInfo = handleRequest(dataStr);
-            // 如果ResponseInfo为空，不需要回复消息
-            if (responseInfo.isEmpty())
-            {
-                continue;
-            }
-            else
-            {
-                responseMessage = responseInfo.exportResponse();
-            }
+            json responseContentJson = handleRequest(header,contentJson);
         }
         catch (const std::exception &e)
         {
             std::cerr << e.what() << '\n';
+            std::cerr << "request content error" << '\n';
             std::cerr << "INFO: restart to receive information." << '\n';
             continue;
         }
+        /**
+         * 
+         * @brief 封装responseContentJson，生成返回内容
+         * 
+         * @return std:string
+         * 
+         */
 
         // 生成回复消息
         if (sendto(sockfd, responseMessage.c_str(), responseMessage.size(), 0, (struct sockaddr *)&sender_addr, addr_len) < 0)
@@ -127,32 +150,17 @@ void UDPconnector(Config *config, int channel)
     close(sockfd);
 }
 
-ResponseInfo handleRequest(std::string dataStr)
+json handleRequest(Header& header,json& content)
 {
-    // 将dataBuffer转换为json对象
-    json dataJson;
-    try
-    {
-        dataJson = json::parse(dataStr);
-    }
-    catch (json::parse_error &e)
-    {
-        std::cerr << "Parse error: " << e.what() << std::endl;
-        throw std::runtime_error("Parse error");
-    }
-
-    // 将json转为RequestInfo对象
-    RequestInfo requestInfo = RequestInfo(dataJson);
-
     json resJson;
-    switch (requestInfo.getRequestType())
+    switch (header.type)
     {
     case 1:
         printf("mission: 1\n");
         // strcpy(response_message, processRegisterMessage(database, data_buffer));
         try
         {
-            resJson = RequestController::handleRegister(requestInfo);
+            resJson = RequestController::handleRegister(header,content);
         }
         catch(const std::exception& e)
         {
@@ -166,7 +174,7 @@ ResponseInfo handleRequest(std::string dataStr)
         // strcpy(response_message, processMetaRegisterMessage(database, data_buffer));
         try
         {
-            resJson = RequestController::handleMetaRegister(requestInfo);
+            resJson = RequestController::handleMetaRegister(header,content);
         }
         catch(const std::exception& e)
         {
@@ -180,7 +188,7 @@ ResponseInfo handleRequest(std::string dataStr)
         // strcpy(response_message, processQuery(database, data_buffer));
         try
         {
-            resJson = RequestController::handleQuery(requestInfo);
+            resJson = RequestController::handleQuery(header,content);
         }
         catch(const std::exception& e)
         {
@@ -194,7 +202,7 @@ ResponseInfo handleRequest(std::string dataStr)
         // processHeartbeat(database, data_buffer);
         try
         {
-            resJson = RequestController::handleHeartbeat(requestInfo);
+            resJson = RequestController::handleHeartbeat(header,content);
         }
         catch(const std::exception& e)
         {
@@ -209,12 +217,32 @@ ResponseInfo handleRequest(std::string dataStr)
         break;
     }
 
-    // 构造ResponseInfo变量
-    ResponseInfo responseInfo(resJson);
-
-    return responseInfo;
+    return resJson;
 }
 
+Header parseHeader(std::string& msg){
+    try
+    {
+        return Header::deserialize(msg);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        std::cerr << "Header parse error" << std::endl;
+    }
+}
+json parseContent(std::string& msg){
+    try
+    {
+        return json::parse(msg);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        std::cerr << "Content parse error" << std::endl;
+    }
+    
+}
 // uint8_t getRequestType(json data)
 // {
 //     if (!data.contains("header"))

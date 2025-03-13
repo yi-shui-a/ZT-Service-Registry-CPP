@@ -7,19 +7,23 @@
         "check_bit": 4,
         "type": 6
     },
-    "service_num": "2",
-    "instance_list": [
-        {
-            "address": "127.0.0.1",
-            "port": 6666,
-            "server_name": "XXX",
-            "role": 1
-        },
-        {
-            "address": "127.0.0.1",
-            "port": 6666,
-            "server_name": "XXX",
-            "role": 1
-        }
-    ]
+    "status": 200,
+    "message": "success",
+    "data": {
+        "service_num": "2",
+        "instance_list": [
+            {
+                "address": "127.0.0.1",
+                "port": 6666,
+                "server_name": "XXX",
+                "role": 1
+            },
+            {
+                "address": "127.0.0.1",
+                "port": 6666,
+                "server_name": "XXX",
+                "role": 1
+            }
+        ]
+    }
 }

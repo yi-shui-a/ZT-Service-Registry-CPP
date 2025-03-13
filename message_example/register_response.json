@@ -7,6 +7,9 @@
         "check_bit": 4,
         "type": 2
     },
-    "status": 1,
-    "server_name": "register"
+    "status": 200,
+    "message": "success",
+    "data": {
+        "server_name": "register"
+    }
 }

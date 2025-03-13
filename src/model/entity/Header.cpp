@@ -1,59 +1,69 @@
 #include "Header.h"
 
 // 序列化报头
-std::string Header::serialize(const HeaderData& header) {
-    std::string serialized;
-    serialized.resize(sizeof(HeaderData));
+std::string Header::serialize(const Header& header) {
+    std::stringstream ss;
 
-    // 转换为网络字节序
-    int32_t identifierNet = htonl(header.identifier);
-    int32_t messageLengthNet = htonl(header.messageLength);
-    int32_t serialNumberNet = htonl(header.serialNumber);
-    int32_t checkBitNet = htonl(header.checkBit);
-    int32_t typeNet = htonl(header.type);
+    // 将各个字段转换为网络字节序（大端序）
+    int32_t identifier = htonl(header.identifier);
+    int32_t messageLength = htonl(header.messageLength);
+    int32_t serialNumber = htonl(header.serialNumber);
+    int32_t checkBit = htonl(header.checkBit);
+    int32_t type = htonl(header.type);
 
-    // 对于 long long 类型，需要手动处理字节序
-    long long sendTimeNet = (long long)htonl((uint32_t)(header.sendTime >> 32)) << 32 | htonl((uint32_t)header.sendTime);
+    // 将 long long 类型的 sendTime 转换为网络字节序
+    long long sendTime = header.sendTime;
+    sendTime = htonll(sendTime); // 需要自定义 htonll 函数
 
-    // 复制数据到序列化字符串
-    memcpy(&serialized[0], &identifierNet, sizeof(int32_t));
-    memcpy(&serialized[sizeof(int32_t)], &sendTimeNet, sizeof(long long));
-    memcpy(&serialized[sizeof(int32_t) + sizeof(long long)], &messageLengthNet, sizeof(int32_t));
-    memcpy(&serialized[sizeof(int32_t) * 2 + sizeof(long long)], &serialNumberNet, sizeof(int32_t));
-    memcpy(&serialized[sizeof(int32_t) * 3 + sizeof(long long)], &checkBitNet, sizeof(int32_t));
-    memcpy(&serialized[sizeof(int32_t) * 4 + sizeof(long long)], &typeNet, sizeof(int32_t));
+    // 将各个字段写入字符串流
+    ss.write(reinterpret_cast<const char*>(&identifier), sizeof(identifier));
+    ss.write(reinterpret_cast<const char*>(&sendTime), sizeof(sendTime));
+    ss.write(reinterpret_cast<const char*>(&messageLength), sizeof(messageLength));
+    ss.write(reinterpret_cast<const char*>(&serialNumber), sizeof(serialNumber));
+    ss.write(reinterpret_cast<const char*>(&checkBit), sizeof(checkBit));
+    ss.write(reinterpret_cast<const char*>(&type), sizeof(type));
 
-    return serialized;
+    // 返回序列化后的字符串
+    return ss.str();
 }
 
 // 反序列化报头
-Header::HeaderData Header::deserialize(const std::string& serialized) {
-    HeaderData header;
+Header Header::deserialize(const std::string& serialized) {
+    Header header;
+    std::stringstream ss(serialized);
 
-    // 提取数据
-    int32_t identifierNet;
-    long long sendTimeNet;
-    int32_t messageLengthNet;
-    int32_t serialNumberNet;
-    int32_t checkBitNet;
-    int32_t typeNet;
+    // 从字符串流中读取各个字段
+    ss.read(reinterpret_cast<char*>(&header.identifier), sizeof(header.identifier));
+    ss.read(reinterpret_cast<char*>(&header.sendTime), sizeof(header.sendTime));
+    ss.read(reinterpret_cast<char*>(&header.messageLength), sizeof(header.messageLength));
+    ss.read(reinterpret_cast<char*>(&header.serialNumber), sizeof(header.serialNumber));
+    ss.read(reinterpret_cast<char*>(&header.checkBit), sizeof(header.checkBit));
+    ss.read(reinterpret_cast<char*>(&header.type), sizeof(header.type));
 
-    memcpy(&identifierNet, &serialized[0], sizeof(int32_t));
-    memcpy(&sendTimeNet, &serialized[sizeof(int32_t)], sizeof(long long));
-    memcpy(&messageLengthNet, &serialized[sizeof(int32_t) + sizeof(long long)], sizeof(int32_t));
-    memcpy(&serialNumberNet, &serialized[sizeof(int32_t) * 2 + sizeof(long long)], sizeof(int32_t));
-    memcpy(&checkBitNet, &serialized[sizeof(int32_t) * 3 + sizeof(long long)], sizeof(int32_t));
-    memcpy(&typeNet, &serialized[sizeof(int32_t) * 4 + sizeof(long long)], sizeof(int32_t));
+    // 将各个字段转换为主机字节序（小端序）
+    header.identifier = ntohl(header.identifier);
+    header.messageLength = ntohl(header.messageLength);
+    header.serialNumber = ntohl(header.serialNumber);
+    header.checkBit = ntohl(header.checkBit);
+    header.type = ntohl(header.type);
 
-    // 转换回主机字节序
-    header.identifier = ntohl(identifierNet);
-    header.messageLength = ntohl(messageLengthNet);
-    header.serialNumber = ntohl(serialNumberNet);
-    header.checkBit = ntohl(checkBitNet);
-    header.type = ntohl(typeNet);
-
-    // 对于 long long 类型，需要手动处理字节序
-    header.sendTime = (long long)ntohl((uint32_t)(sendTimeNet >> 32)) << 32 | ntohl((uint32_t)sendTimeNet);
+    // 将 long long 类型的 sendTime 转换为主机字节序
+    header.sendTime = ntohll(header.sendTime); // 需要自定义 ntohll 函数
 
     return header;
+}
+
+// 自定义 htonll 和 ntohll 函数（用于处理 long long 类型的字节序转换）
+long long htonll(long long value) {
+    if (htonl(1) == 1) {
+        return value; // 大端序系统，无需转换
+    }
+    // 小端序系统，需要转换
+    char* ptr = reinterpret_cast<char*>(&value);
+    std::reverse(ptr, ptr + sizeof(value));
+    return value;
+}
+
+long long ntohll(long long value) {
+    return htonll(value); // 与 htonll 相同
 }

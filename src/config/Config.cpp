@@ -4,26 +4,26 @@
 Config *Config::instance = nullptr;
 // 配置文件路径
 std::string Config::configFilePath = "";
-// 仓库数据持久化间隔 /s
-size_t Config::DATABASE_PERSISTENCE_INTERVAL = 5;
-// 读取缓冲区大小
-size_t Config::READ_BUFFER_SIZE = 16;
-// 核心缓冲区大小
-size_t Config::CORE_BUFFER_SIZE = 1024;
-// 读取时间间隔 /s
-size_t Config::READ_TIME_INTERVAL = 1;
-// 心跳时间间隔 /s
-size_t Config::HEARTBEAT_TIME_INTERVAL = 30;
-// 主备心跳时间间隔 /s
-size_t Config::STANDBY_HEARTBEAT_TIME_INTERVAL = 5;
-// 服务实例超时时间 /s
-size_t Config::SERVICE_INSTANCE_TIMEOUT = 90;
+// 仓库数据持久化间隔 /ms
+size_t Config::DATABASE_PERSISTENCE_INTERVAL = 5 * 60;
+// 读取缓冲区大小 /B
+size_t Config::READ_BUFFER_SIZE = 16 * 1024;
+// 核心缓冲区大小 /B
+size_t Config::CORE_BUFFER_SIZE = 4 * 1024 *1024;
+// 读取时间间隔 /ms
+size_t Config::READ_TIME_INTERVAL = 1 * 60;
+// 心跳时间间隔 /ms
+size_t Config::HEARTBEAT_TIME_INTERVAL = 30 *60;
+// 主备心跳时间间隔 /ms
+size_t Config::STANDBY_HEARTBEAT_TIME_INTERVAL = 5 * 60;
+// 服务实例超时时间 /ms
+size_t Config::SERVICE_INSTANCE_TIMEOUT = 90 *60;
 // 地址
 std::string Config::ADDRESS = "127.0.0.1";
 size_t Config::SERVER_PORT = 10450;
 size_t Config::MANAGE_PORT = 10451;
-//std::string Config::DATABASE_NAME = "config/database_test.json";
-//std::string Config::LOCKFILE = "config/standby.json";
+std::string Config::DATABASE_NAME = "config/database_test.json";
+std::string Config::LOCKFILE = "config/standby.json";
 
 // 私有构造函数
 Config::Config(const std::string &filePath) {

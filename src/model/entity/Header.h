@@ -5,28 +5,37 @@
 #include <cstring>
 #include <arpa/inet.h>
 #include <string>
+#include <sstream>
+#include <iomanip>
+#include <cstring>
+
 #include <nlohmann/json.hpp>
 
 // 使用 nlohmann::json 库进行 JSON 处理
 using json = nlohmann::json;
 
+
+/**
+ * @brief 报头类
+ * 
+ * 用于序列化和反序列化报头数据。
+ * 报头长度为 28 字节。
+ */
 class Header {
 public:
     // 报头结构体
-    struct HeaderData {
-        int32_t identifier;
-        long long sendTime;
-        int32_t messageLength;
-        int32_t serialNumber;
-        int32_t checkBit;
-        int32_t type;
-    };
+    int32_t identifier;
+    long long sendTime;
+    int32_t messageLength;
+    int32_t serialNumber;
+    int32_t checkBit;
+    int32_t type;
 
     // 序列化报头
-    static std::string serialize(const HeaderData& header);
+    static std::string serialize(const Header& header);
 
     // 反序列化报头
-    static HeaderData deserialize(const std::string& serialized);
+    static Header deserialize(const std::string& serialized);
 };
 
 #endif // HEADER_H

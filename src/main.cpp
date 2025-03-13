@@ -12,22 +12,25 @@
 
 #include "config/ConfigUtil.cpp"
 #include "config/Config.h"
+#include "database/LocalDatabase.h"
 #include "com/UDPConnector.h"
 #include "utils/Util.h"
-// #include "utils/DBUtil.h"
-#include "service/DBService.h"
 // #include "UDPConnector.h"
-// #include "JsonProcess.h"
+
 
 using json = nlohmann::json;
 
 // 获取设备锁
 void getMainLock(Config *config);
-void monitorDatabase(Config *config, DBService dBService);
+// void monitorDatabase(Config *config, DBService dBService);
 
 int main(int argc, char *argv[])
 {
-    // 获取配置文件路径
+    /**
+     * 加载运行参数argc和argv
+     * 
+     * + 获取配置文件路径
+     */
     std::string configPath;
     try
     {
@@ -50,40 +53,50 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    // 加载配置文件，设置全局变量。
+    /**
+     * 加载全局配置文件
+     */
     Config *config;
+    // 获取 Config 单例实例
+    config = Config::getInstance(configPath);
+
+    /**
+     * 获取设备锁
+     * 如果能获取，作为主份持续运行;如果不能获取，作为备份，持续心跳，等待成为主份
+     * TODO: 未来需要改为抢占式，先抢到的成为主份。（根据时间）
+     */
     try
     {
-
-        // 获取 Config 单例实例
-        config = Config::getInstance(configPath);
-        // 获取设备锁
-        // 如果能获取，作为主份持续运行;如果不能获取，作为备份，持续心跳，等待成为主份
-        // TODO: 未来需要改为抢占式，先抢到的成为主份。（根据时间）
         getMainLock(config);
     }
     catch (const std::exception &e)
     {
         std::cerr << "Error: " << e.what() << std::endl;
-        std::cerr << "config load error" << std::endl;
+        std::cerr << "getMainLock error" << std::endl;
         return EXIT_FAILURE;
     }
 
+    /**
+     * 连接数据库
+     * 
+     * + 连接数据库
+     * + 启动数据库监控线程
+     */
+    LocalDatabase::getInstance(config->getDatabaseName());
     // 定义一个全局的数据库变量
-    DBService dBService(config->getDatabaseName());
+    // DBService dBService(config->getDatabaseName());
     // 清空数据库
     // Util::clearFile(config->getDatabaseName());
 
-    // 创建各个线程和数据库线程，开始运行
+    /**
+     * 创建各个线程线程，开始运行
+     */
     try
     {
-        std::thread thread_server(&UDPconnector, config, 1);
+        std::thread thread_server(&connector, config, 1);
         std::cout << "thread_server created successfully. Continuing program execution." << std::endl;
-        std::thread thread_manage(&UDPconnector, config, 2);
+        std::thread thread_manage(&connector, config, 2);
         std::cout << "thread_manage created successfully. Continuing program execution." << std::endl;
-
-        // 定时进行数据监控
-        monitorDatabase(config, dBService);
 
         // 线程结束
         thread_server.join();
@@ -97,33 +110,33 @@ int main(int argc, char *argv[])
     }
 }
 
-void monitorDatabase(Config *config, DBService dBService)
-{
-    int temp_array[2] = {config->getDatabasePersistenceInterval(), config->getServiceInstanceTimeout()};
-    int check_interval = Util::gcdMultiple(temp_array, 2);
-    time_t start_time;
-    time(&start_time);
-    size_t database_persistence_interval_count = 0;
-    size_t service_instance_time_count = 0;
+// void monitorDatabase(Config *config, DBService dBService)
+// {
+//     int temp_array[2] = {config->getDatabasePersistenceInterval(), config->getServiceInstanceTimeout()};
+//     int check_interval = Util::gcdMultiple(temp_array, 2);
+//     time_t start_time;
+//     time(&start_time);
+//     size_t database_persistence_interval_count = 0;
+//     size_t service_instance_time_count = 0;
 
-    while (true)
-    {
-        sleep(check_interval);
-        time_t current_time;
-        time(&current_time);
-        if ((current_time - start_time) / config->getDatabasePersistenceInterval() >= database_persistence_interval_count)
-        {
-            std::cout << "finished save database" << std::endl;
-            dBService.saveDatabase();
-            database_persistence_interval_count += 1;
-        }
-        if ((current_time - start_time) >= 5)
-        {
-            dBService.updateServiceInstanceStatus(current_time, config->getServiceInstanceTimeout());
-            service_instance_time_count += 1;
-        }
-    }
-}
+//     while (true)
+//     {
+//         sleep(check_interval);
+//         time_t current_time;
+//         time(&current_time);
+//         if ((current_time - start_time) / config->getDatabasePersistenceInterval() >= database_persistence_interval_count)
+//         {
+//             std::cout << "finished save database" << std::endl;
+//             dBService.saveDatabase();
+//             database_persistence_interval_count += 1;
+//         }
+//         if ((current_time - start_time) >= 5)
+//         {
+//             dBService.updateServiceInstanceStatus(current_time, config->getServiceInstanceTimeout());
+//             service_instance_time_count += 1;
+//         }
+//     }
+// }
 
 int try_lock_file(const std::string &lockfile)
 {
