@@ -2,53 +2,126 @@
 #include <fstream>
 #include <string>
 #include <cstring>
-#include <arpa/inet.h> // For socket and network functions
+#include <chrono>
+#include <unistd.h>          // 包含 close 函数的定义
+#include <arpa/inet.h>       // For socket and network functions
 #include <nlohmann/json.hpp> // For JSON parsing
+
+#include "Header.h"
 
 // 使用 nlohmann/json 库
 using json = nlohmann::json;
 
 // UDP 广播函数
-void udpBroadcast(const std::string& message, const std::string& broadcastAddress, int port) {
-    // 创建 UDP 套接字
+void udpBroadcastAndReceive(const std::string &message, const std::string &broadcastAddress, int target_port)
+{
+    // 创建UDP套接字
     int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sockfd < 0) {
-        std::cerr << "Error: Could not create socket" << std::endl;
-        return;
+    if (sockfd < 0)
+    {
+        throw std::runtime_error("无法创建套接字");
     }
 
-    // 设置套接字为广播模式
+    // 设置套接字选项以允许广播
     int broadcastEnable = 1;
-    if (setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, &broadcastEnable, sizeof(broadcastEnable)) < 0) {
-        std::cerr << "Error: Could not set socket to broadcast mode" << std::endl;
+    if (setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, &broadcastEnable, sizeof(broadcastEnable)))
+    {
         close(sockfd);
-        return;
+        throw std::runtime_error("无法设置套接字选项以允许广播");
     }
 
     // 设置目标地址
-    struct sockaddr_in destAddr;
-    memset(&destAddr, 0, sizeof(destAddr));
-    destAddr.sin_family = AF_INET;
-    destAddr.sin_port = htons(port); // 目标端口
-    inet_pton(AF_INET, broadcastAddress.c_str(), &destAddr.sin_addr); // 广播地址
-
-    // 发送数据
-    ssize_t bytesSent = sendto(sockfd, message.c_str(), message.size(), 0,
-                               (struct sockaddr*)&destAddr, sizeof(destAddr));
-    if (bytesSent < 0) {
-        std::cerr << "Error: Failed to send data" << std::endl;
-    } else {
-        std::cout << "Broadcasted message: " << message << std::endl;
+    struct sockaddr_in targetAddr;
+    memset(&targetAddr, 0, sizeof(targetAddr));
+    targetAddr.sin_family = AF_INET;
+    targetAddr.sin_port = htons(target_port);
+    if (inet_pton(AF_INET, broadcastAddress.c_str(), &targetAddr.sin_addr) <= 0)
+    {
+        close(sockfd);
+        throw std::runtime_error("无效的广播地址");
     }
+
+    // 发送广播消息
+    ssize_t sentBytes = sendto(sockfd, message.c_str(), message.size(), 0, (struct sockaddr *)&targetAddr, sizeof(targetAddr));
+    if (sentBytes < 0)
+    {
+        close(sockfd);
+        throw std::runtime_error("发送广播消息失败");
+    }
+
+    // 设置超时以便在指定时间内等待响应
+    struct timeval tv;
+    tv.tv_sec = 5; // 5秒超时
+    tv.tv_usec = 0;
+    if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0)
+    {
+        close(sockfd);
+        throw std::runtime_error("无法设置接收超时");
+    }
+
+    // 接收单播响应
+    char buffer[8 * 1024];
+    struct sockaddr_in fromAddr;
+    socklen_t fromAddrLen = sizeof(fromAddr);
+    ssize_t recvBytes = recvfrom(sockfd, buffer, sizeof(buffer) - 1, 0, (struct sockaddr *)&fromAddr, &fromAddrLen);
+    if (recvBytes < 0)
+    {
+        close(sockfd);
+        throw std::runtime_error("接收响应失败或超时");
+    }
+
+    // 确保缓冲区以null结尾
+    buffer[recvBytes] = '\0';
+
+    // 将接收到的数据分为两部分
+    const int prefixLength = 28; // 前28个字节
+    if (recvBytes < prefixLength)
+    {
+        close(sockfd);
+        throw std::runtime_error("接收到的数据不足28字节");
+    }
+
+    // // 第一部分：前28个字节
+    // char prefix[prefixLength + 1]; // 多一个字节用于 null 结尾
+    // memcpy(prefix, buffer, prefixLength);
+    // prefix[prefixLength] = '\0'; // 确保以 null 结尾
+
+    // // 第二部分：剩余部分
+    // int remainingLength = recvBytes - prefixLength;
+    // char remaining[remainingLength + 1]; // 多一个字节用于 null 结尾
+    // memcpy(remaining, buffer + prefixLength, remainingLength);
+    // remaining[remainingLength] = '\0'; // 确保以 null 结尾
+
+    // 输出接收到的消息
+    std::cout << "接收到来自 " << inet_ntoa(fromAddr.sin_addr) << ":" << ntohs(fromAddr.sin_port) << " 的消息: " << buffer << std::endl;
+    std::cout << "已接收 " << recvBytes << " 字节数据" << std::endl;
+    // std::string responseMessage = buffer; // 转换为 std::string
+    // std::string responseHeaderStr = prefix;
+    // std::string responseContentStr = remaining;
+    // std::cout << "responseHeader:\n"
+    //           << Header::deserialize(responseHeaderStr).toString() << std::endl;
+    // std::cout << "responseContet:\n"
+    //           << responseContentStr << std::endl;
+
+
+    std::string responseMessage(buffer, recvBytes);
+    std::string responseHeaderStr = responseMessage.substr(0, 28);
+    std::string responseContentStr = responseMessage.substr(28);
+    std::cout << "responseHeader:\n"
+              << Header::deserialize(responseHeaderStr).toString() << std::endl;
+    std::cout << "responseContet:\n"
+              << responseContentStr << std::endl;
 
     // 关闭套接字
     close(sockfd);
 }
 
 // 从 JSON 文件读取数据
-std::string readJsonFile(const std::string& filePath) {
+std::string readJsonFile(const std::string &filePath)
+{
     std::ifstream file(filePath);
-    if (!file.is_open()) {
+    if (!file.is_open())
+    {
         std::cerr << "Error: Could not open JSON file" << std::endl;
         return "";
     }
@@ -61,23 +134,50 @@ std::string readJsonFile(const std::string& filePath) {
     return jsonData.dump(); // dump() 返回 JSON 的字符串表示
 }
 
-int main() {
+// 获取当前毫秒级时间戳
+long long getCurrentTimeMillis()
+{
+    auto now = std::chrono::steady_clock::now();
+    auto duration = now.time_since_epoch();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+}
+
+std::string formatResponse(std::string contentStr)
+{
+    Header header = Header();
+    header.identifier = 22;
+    header.sendTime = getCurrentTimeMillis();
+    header.messageLength = contentStr.length();
+    header.serialNumber = 1;
+    header.checkBit = 1;
+    header.type = 1;
+    std::string headerStr = Header::serialize(header);
+
+    return headerStr + contentStr;
+}
+
+int main()
+{
     // JSON 文件路径
-    std::string jsonFilePath = "data.json";
+    std::string jsonFilePath = "../message_example/register.json";
 
     // 从 JSON 文件读取数据
-    std::string jsonString = readJsonFile(jsonFilePath);
-    if (jsonString.empty()) {
+    std::string contentStr = readJsonFile(jsonFilePath);
+    if (contentStr.empty())
+    {
         std::cerr << "Error: JSON data is empty" << std::endl;
         return 1;
     }
 
+    // 构造 string 数据
+    std::string resString = formatResponse(contentStr);
+
     // 广播地址和端口
     std::string broadcastAddress = "255.255.255.255"; // 广播地址
-    int port = 12345; // 目标端口
+    int port = 10450;                                 // 目标端口
 
-    // 广播 JSON 数据
-    udpBroadcast(jsonString, broadcastAddress, port);
+    // 广播 JSON 数据并接收返回值
+    udpBroadcastAndReceive(resString, broadcastAddress, port);
 
     return 0;
 }

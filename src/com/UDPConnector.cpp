@@ -82,9 +82,9 @@ void connector(Config *config, int channel)
 
         buffer[received_len] = '\0'; // 确保字符串以NULL结尾
 
-        std::cout << "received_len: " << received_len << std::endl;
-        std::cout << "Received message:\n"
-                  << buffer << std::endl;
+        // std::cout << "received_len: " << received_len << std::endl;
+        // std::cout << "Received message:\n"
+        //           << buffer << std::endl;
 
         /**
          *
@@ -102,6 +102,8 @@ void connector(Config *config, int channel)
         std::string headerStr = dataStr.substr(0, 28);
         std::string contentStr = dataStr.substr(28);
         Header header = parseHeader(headerStr);
+        std::cout << "received header: "<< std::endl << header.toString() << std::endl;
+        std::cout << "received content: "<< std::endl << contentStr << std::endl;
         json contentJson = parseContent(contentStr);
 
         /**
@@ -150,8 +152,12 @@ void connector(Config *config, int channel)
             std::cout << "Response sent to sender" << std::endl;
             std::cout << "IP: " << temp_addr << std::endl;
             std::cout << "PORT: " << ntohs(sender_addr.sin_port) << std::endl;
-            std::cout << "response_message:\n"
-                      << responseMessage << std::endl;
+            std::string responseHeaderStr = responseMessage.substr(0, 28);
+            std::string responseContentStr = responseMessage.substr(28);
+            std::cout << "responseHeader:\n"
+                      << parseHeader(responseHeaderStr).toString() << std::endl;
+            std::cout << "responseContent:\n"
+                      << responseContentStr << std::endl;
         }
     }
 
@@ -265,6 +271,7 @@ std::string formatResponse(Header resquestHeader, json content)
     header.checkBit = 1;
     header.type = TYPE_MAP[resquestHeader.type];
     std::string headerStr = Header::serialize(header);
+
 
     return headerStr + contentStr;
 }

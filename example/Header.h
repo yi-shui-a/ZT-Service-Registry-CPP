@@ -32,7 +32,7 @@ public:
     int32_t type;
 
     // 打印数据
-    void printData();
+    std::string toString();
 
     // 序列化报头
     static std::string serialize(const Header &header);

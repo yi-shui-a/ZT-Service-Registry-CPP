@@ -68,7 +68,7 @@ long long Header::ntohll(long long value) {
     return htonll(value); // 与 htonll 相同
 }
 
-void Header::printData(){
+std::string Header::toString(){
     json data;
     data["identifier"] = identifier;
     data["sendTime"] = sendTime;
@@ -76,5 +76,5 @@ void Header::printData(){
     data["serialNumber"] = serialNumber;
     data["checkBit"] = checkBit;
     data["type"] = type;
-    std::cout << data.dump(4) << std::endl;
+    return data.dump(4);
 }
