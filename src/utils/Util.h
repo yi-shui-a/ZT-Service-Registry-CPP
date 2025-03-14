@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <chrono>
 #include <nlohmann/json.hpp>
 
 // 使用 nlohmann/json 库
@@ -19,6 +20,9 @@ public:
     static int gcdMultiple(const int nums[], int size);
     // 计算该整数的位数。
     static int getDigit(int number);
+
+    // 获取当前毫秒级时间戳
+    static long long getCurrentTimeMillis();
 
 };
 

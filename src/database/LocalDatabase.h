@@ -21,8 +21,8 @@ private:
     std::thread timerThread;
 
     // 私有构造函数，防止外部实例化
-    LocalDatabase() = default;
-    LocalDatabase(const std::string& filePath);
+    // LocalDatabase() = default;
+    LocalDatabase(const std::string& filePath = "");
     // 拷贝构造函数和赋值运算符私有化，防止拷贝
     LocalDatabase(const LocalDatabase&) = delete;
     LocalDatabase& operator=(const LocalDatabase&) = delete;
@@ -36,10 +36,10 @@ public:
     static LocalDatabase* getInstance(const std::string& filePath = "");
 
     // 获取 JSON 对象
-    json getJsonObject() const;
+    json getJsonDatabase() const;
 
     // 设置 JSON 对象
-    void setJsonObject(const json& obj);
+    void setJsonDatabase(const json& obj);
 
     // 获取 JSON 字符串
     std::string getJsonString() const;

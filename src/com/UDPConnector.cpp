@@ -66,9 +66,9 @@ void connector(Config *config, int channel)
     while (1)
     {
         /**
-         * 
+         *
          * @brief 以阻塞的方式接收udp数据包
-         * 
+         *
          */
         // 清空 buffer，避免残留数据影响
         memset(buffer, 0, config->getReadBufferSize());
@@ -87,31 +87,32 @@ void connector(Config *config, int channel)
                   << buffer << std::endl;
 
         /**
-         * 
+         *
          * @brief 解析dataStr中的数据
-         * 
+         *
          * @param dataStr 接收到的数据包
-         * 
+         *
          * @return 1. 返回Header对象
          * @return 2. 返回报文json对象
-         * 
+         *
          * @attention 报头是序列化后的数据(长度为28字节)，报文正文是json字符串
-         * 
+         *
          */
         std::string dataStr(buffer, received_len);
-        std::string headerStr = dataStr.substr(0,28);
+        std::string headerStr = dataStr.substr(0, 28);
         std::string contentStr = dataStr.substr(28);
         Header header = parseHeader(headerStr);
         json contentJson = parseContent(contentStr);
 
         /**
-         * 
+         *
          * @brief 处理接收到的请求数据
-         * 
+         *
          */
+        json responseContentJson;
         try
         {
-            json responseContentJson = handleRequest(header,contentJson);
+            responseContentJson = handleRequest(header, contentJson);
         }
         catch (const std::exception &e)
         {
@@ -120,14 +121,22 @@ void connector(Config *config, int channel)
             std::cerr << "INFO: restart to receive information." << '\n';
             continue;
         }
-        /**
-         * 
-         * @brief 封装responseContentJson，生成返回内容
-         * 
-         * @return std:string
-         * 
-         */
+        // 没有返回值，可能是收到了不需要处理的消息类型或者heartbeat，直接continue；
+        if (responseContentJson.is_null())
+        {
+            continue;
+        }
 
+        /**
+         *
+         * @brief 封装responseContentJson，生成返回内容
+         *
+         * +
+         * + 构造报头
+         * @return std:string
+         *
+         */
+        std::string responseMessage = formatResponse(header,responseContentJson);
         // 生成回复消息
         if (sendto(sockfd, responseMessage.c_str(), responseMessage.size(), 0, (struct sockaddr *)&sender_addr, addr_len) < 0)
         {
@@ -150,7 +159,7 @@ void connector(Config *config, int channel)
     close(sockfd);
 }
 
-json handleRequest(Header& header,json& content)
+json handleRequest(Header &header, json &content)
 {
     json resJson;
     switch (header.type)
@@ -160,57 +169,57 @@ json handleRequest(Header& header,json& content)
         // strcpy(response_message, processRegisterMessage(database, data_buffer));
         try
         {
-            resJson = RequestController::handleRegister(header,content);
+            resJson = RequestController::handleRegister(header, content);
         }
-        catch(const std::exception& e)
+        catch (const std::exception &e)
         {
             std::cerr << e.what() << '\n';
             std::cout << "WARNNING: handleRegister error" << std::endl;
             throw;
         }
         break;
-    case 3:
-        printf("mission: 3\n");
-        // strcpy(response_message, processMetaRegisterMessage(database, data_buffer));
-        try
-        {
-            resJson = RequestController::handleMetaRegister(header,content);
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-            std::cout << "WARNNING: handleMetaRegister error" << std::endl;
-            throw;
-        }
-        break;
-    case 5:
-        printf("mission: 5\n");
-        // strcpy(response_message, processQuery(database, data_buffer));
-        try
-        {
-            resJson = RequestController::handleQuery(header,content);
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-            std::cout << "WARNNING: handleQuery error" << std::endl;
-            throw;
-        }
-        break;
-    case 7:
-        printf("mission: 7\n");
-        // processHeartbeat(database, data_buffer);
-        try
-        {
-            resJson = RequestController::handleHeartbeat(header,content);
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-            std::cout << "WARNNING: handleHeartbeat error" << std::endl;
-            throw;
-        }
-        break;
+    // case 3:
+    //     printf("mission: 3\n");
+    //     // strcpy(response_message, processMetaRegisterMessage(database, data_buffer));
+    //     try
+    //     {
+    //         resJson = RequestController::handleMetaRegister(header, content);
+    //     }
+    //     catch (const std::exception &e)
+    //     {
+    //         std::cerr << e.what() << '\n';
+    //         std::cout << "WARNNING: handleMetaRegister error" << std::endl;
+    //         throw;
+    //     }
+    //     break;
+    // case 5:
+    //     printf("mission: 5\n");
+    //     // strcpy(response_message, processQuery(database, data_buffer));
+    //     try
+    //     {
+    //         resJson = RequestController::handleQuery(header, content);
+    //     }
+    //     catch (const std::exception &e)
+    //     {
+    //         std::cerr << e.what() << '\n';
+    //         std::cout << "WARNNING: handleQuery error" << std::endl;
+    //         throw;
+    //     }
+    //     break;
+    // case 7:
+    //     printf("mission: 7\n");
+    //     // processHeartbeat(database, data_buffer);
+    //     try
+    //     {
+    //         resJson = RequestController::handleHeartbeat(header, content);
+    //     }
+    //     catch (const std::exception &e)
+    //     {
+    //         std::cerr << e.what() << '\n';
+    //         std::cout << "WARNNING: handleHeartbeat error" << std::endl;
+    //         throw;
+    //     }
+    //     break;
     default:
         printf("Received error message");
         // throw std::runtime_error("Received error message");
@@ -220,39 +229,42 @@ json handleRequest(Header& header,json& content)
     return resJson;
 }
 
-Header parseHeader(std::string& msg){
+Header parseHeader(std::string &msg)
+{
     try
     {
         return Header::deserialize(msg);
     }
-    catch(const std::exception& e)
+    catch (const std::exception &e)
     {
         std::cerr << e.what() << '\n';
         std::cerr << "Header parse error" << std::endl;
     }
 }
-json parseContent(std::string& msg){
+json parseContent(std::string &msg)
+{
     try
     {
         return json::parse(msg);
     }
-    catch(const std::exception& e)
+    catch (const std::exception &e)
     {
         std::cerr << e.what() << '\n';
         std::cerr << "Content parse error" << std::endl;
     }
-    
 }
-// uint8_t getRequestType(json data)
-// {
-//     if (!data.contains("header"))
-//     {
-//         throw std::runtime_error("request header is not exist");
-//     }
-//     if (!data["header"].contains("type"))
-//     {
-//         throw std::runtime_error("request header's type is not exist");
-//     }
 
-//     return data["header"]["type"];
-// }
+std::string formatResponse(Header resquestHeader, json content)
+{
+    std::string contentStr = content.dump(4);
+    Header header = Header();
+    header.identifier = 22;
+    header.sendTime = Util::getCurrentTimeMillis();
+    header.messageLength = contentStr.length();
+    header.serialNumber = 1;
+    header.checkBit = 1;
+    header.type = TYPE_MAP[resquestHeader.type];
+    std::string headerStr = Header::serialize(header);
+
+    return headerStr + contentStr;
+}

@@ -22,8 +22,8 @@ size_t Config::SERVICE_INSTANCE_TIMEOUT = 90 *60;
 std::string Config::ADDRESS = "127.0.0.1";
 size_t Config::SERVER_PORT = 10450;
 size_t Config::MANAGE_PORT = 10451;
-std::string Config::DATABASE_NAME = "config/database_test.json";
-std::string Config::LOCKFILE = "config/standby.json";
+std::string Config::DATABASE_NAME = "../config/database_test.json";
+std::string Config::LOCKFILE = "../config/standby.json";
 
 // 私有构造函数
 Config::Config(const std::string &filePath) {

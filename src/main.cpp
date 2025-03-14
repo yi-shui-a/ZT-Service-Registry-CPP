@@ -12,10 +12,10 @@
 
 #include "config/ConfigUtil.cpp"
 #include "config/Config.h"
+#include "constant/globals.h"
 #include "database/LocalDatabase.h"
 #include "com/UDPConnector.h"
 #include "utils/Util.h"
-// #include "UDPConnector.h"
 
 
 using json = nlohmann::json;
@@ -93,9 +93,9 @@ int main(int argc, char *argv[])
      */
     try
     {
-        std::thread thread_server(&connector, config, 1);
+        std::thread thread_server(&connector, config, SERVER_CHANNEL);
         std::cout << "thread_server created successfully. Continuing program execution." << std::endl;
-        std::thread thread_manage(&connector, config, 2);
+        std::thread thread_manage(&connector, config, MANAGE_CHANNEL);
         std::cout << "thread_manage created successfully. Continuing program execution." << std::endl;
 
         // 线程结束

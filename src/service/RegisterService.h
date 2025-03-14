@@ -12,7 +12,7 @@ public:
     bool isValidData(const json& content);
 
     // 处理数据的函数
-    void processData(const json& content);
+    json processData(const json& content);
 };
 
 #endif // REGISTERSERVICE_H

@@ -4,7 +4,7 @@
 LocalDatabase *LocalDatabase::instance = nullptr;
 
 // 获取单例实例的静态方法
-LocalDatabase *LocalDatabase::getInstance(const std::string &filePath = "")
+LocalDatabase *LocalDatabase::getInstance(const std::string &filePath)
 {
     if (instance == nullptr)
     {
@@ -34,8 +34,16 @@ LocalDatabase::LocalDatabase(const std::string &filePath)
         if (file.is_open())
         {
             // 文件存在，读取并解析
-            file >> database;
+            try {
+                file >> database;
+            } catch (const std::exception& e) {
+                std::cerr << "Failed to parse JSON file: " << e.what() << std::endl;
+                initDatabase();
+            }
             file.close();
+            
+            // file >> database;
+            // file.close();
         }
         else
         {
@@ -69,13 +77,13 @@ void LocalDatabase::initDatabase()
 }
 
 // 获取 JSON 对象
-json LocalDatabase::getJsonObject() const
+json LocalDatabase::getJsonDatabase() const
 {
     return database;
 }
 
 // 设置 JSON 对象
-void LocalDatabase::setJsonObject(const json &obj)
+void LocalDatabase::setJsonDatabase(const json &obj)
 {
     database = obj;
 }
@@ -83,7 +91,7 @@ void LocalDatabase::setJsonObject(const json &obj)
 // 获取 JSON 字符串
 std::string LocalDatabase::getJsonString() const
 {
-    return database.dump();
+    return database.dump(4);
 }
 
 // 设置 JSON 字符串

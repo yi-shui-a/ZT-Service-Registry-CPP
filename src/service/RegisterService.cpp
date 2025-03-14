@@ -9,7 +9,13 @@ bool RegisterService::isValidData(const json& content) {
 }
 
 // 实现 processData 函数
-void RegisterService::processData(const json& content) {
+json RegisterService::processData(const json& content) {
     // 这里可以添加具体的数据处理逻辑
     std::cout << "RegisterService: Processing data..." << std::endl;
+    json j1 = {
+    {"name", "John"},
+    {"age", 30},
+    {"is_student", false}
+};
+    return j1;
 }

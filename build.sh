@@ -1,13 +1,12 @@
-DIRECTORY="bin"
- 
-if [ ! -d "$DIRECTORY" ]; then
-  mkdir -p "$DIRECTORY"
+# 检查 build 目录是否存在
+if [ -d "build" ]; then
+    # 如果存在，清空 build 目录中的内容
+    rm -rf build/*
+else
+    # 如果不存在，创建 build 目录
+    mkdir build
 fi
 
-cd src/
-
-gcc cJSON.c DataStruct.c JsonProcess.c  UDPConnector.c -pthread main.c -o ../bin/registry
-
-gcc z_test.c -o ../bin/z_test
-
-# gcc z_test_json.c cJSON.c -o z_test_json
+cd build
+cmake ..
+make
