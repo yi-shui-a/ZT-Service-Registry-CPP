@@ -29,6 +29,7 @@
    8. manage, 管理消息报文, type = 8。
    9. manage_response, 管理消息回复报文, type = 9。
 
+
 1. status,服务状态分为UP和SHUTUP，即运行状态和关闭状态。后续可能加入例如 "UP"（服务正常），"DOWN"（服务不可用），"STARTING"（服务启动中），"OUT_OF_SERVICE"（服务下线），"UNKNOWN"（未知状态）等。
 2. role，服务的优先级，即主备份，0为主份，1为备份，数字越大，优先级越低。另一种方法是使用字符串，primary为主份，backup为备份。
 3. card，板卡的id。

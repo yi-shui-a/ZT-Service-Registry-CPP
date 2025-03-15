@@ -34,8 +34,8 @@ Config::Config(const std::string &filePath) {
         file >> configData;
         file.close();
     } else {
-        std::cout << "Failed to open config file: " << filePath << std::endl;
-        std::cout << "SUCCESS: config created" << std::endl;
+        std::cout << "WARNNING: Failed to open config file: " << filePath << std::endl;
+        std::cout << "SUCCESS: new config created" << std::endl;
         return;
     }
     if (configData.contains("READ_BUFFER_SIZE")) {
@@ -71,6 +71,7 @@ Config::Config(const std::string &filePath) {
     if (configData.contains("DATABASE_NAME")) {
         DATABASE_NAME = configData["DATABASE_NAME"];
     }
+    std::cout << "SUCCESS: Config loaded" << std::endl;
 }
 
 // 获取单例实例的静态方法

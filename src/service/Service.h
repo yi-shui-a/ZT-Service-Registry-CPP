@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+#include "../model/entity/Header.h"
 #include <nlohmann/json.hpp>
 
 // 使用 nlohmann/json 库
@@ -15,7 +16,7 @@ public:
     virtual bool isValidData(const json& content) = 0;
 
     // 纯虚函数，用于处理数据
-    virtual json processData(const json& content) = 0;
+    virtual json processData(Header &header, const json& content) = 0;
 
     // 实函数，用于构造返回值
     json formatResponse(json data = json::object(), int status = 200, std::string message = "");

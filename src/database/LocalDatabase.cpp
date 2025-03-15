@@ -34,14 +34,17 @@ LocalDatabase::LocalDatabase(const std::string &filePath)
         if (file.is_open())
         {
             // 文件存在，读取并解析
-            try {
+            try
+            {
                 file >> database;
-            } catch (const std::exception& e) {
+            }
+            catch (const std::exception &e)
+            {
                 std::cerr << "Failed to parse JSON file: " << e.what() << std::endl;
                 initDatabase();
             }
             file.close();
-            
+
             // file >> database;
             // file.close();
         }
@@ -64,7 +67,7 @@ void LocalDatabase::startTimer()
             // 模拟每 5 秒执行一次操作
             std::this_thread::sleep_for(std::chrono::milliseconds(5000));
             // 在这里对 database 执行相关操作
-            std::cout << "Timer triggered, database size: " << database.size() << std::endl;
+            std::cout << "Current database: \n" << database.dump(4) << std::endl;
         } });
     timerThread.detach();
 }
@@ -72,12 +75,12 @@ void LocalDatabase::startTimer()
 void LocalDatabase::initDatabase()
 {
     database = json::object();
-    json service = json::array();
-    database["service"] = service;
+    json services = json::array();
+    database["services"] = services;
 }
 
 // 获取 JSON 对象
-json LocalDatabase::getJsonDatabase() const
+json& LocalDatabase::getJsonDatabase()
 {
     return database;
 }

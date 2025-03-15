@@ -81,29 +81,9 @@ void udpBroadcastAndReceive(const std::string &message, const std::string &broad
         throw std::runtime_error("接收到的数据不足28字节");
     }
 
-    // // 第一部分：前28个字节
-    // char prefix[prefixLength + 1]; // 多一个字节用于 null 结尾
-    // memcpy(prefix, buffer, prefixLength);
-    // prefix[prefixLength] = '\0'; // 确保以 null 结尾
-
-    // // 第二部分：剩余部分
-    // int remainingLength = recvBytes - prefixLength;
-    // char remaining[remainingLength + 1]; // 多一个字节用于 null 结尾
-    // memcpy(remaining, buffer + prefixLength, remainingLength);
-    // remaining[remainingLength] = '\0'; // 确保以 null 结尾
-
     // 输出接收到的消息
     std::cout << "接收到来自 " << inet_ntoa(fromAddr.sin_addr) << ":" << ntohs(fromAddr.sin_port) << " 的消息: " << buffer << std::endl;
     std::cout << "已接收 " << recvBytes << " 字节数据" << std::endl;
-    // std::string responseMessage = buffer; // 转换为 std::string
-    // std::string responseHeaderStr = prefix;
-    // std::string responseContentStr = remaining;
-    // std::cout << "responseHeader:\n"
-    //           << Header::deserialize(responseHeaderStr).toString() << std::endl;
-    // std::cout << "responseContet:\n"
-    //           << responseContentStr << std::endl;
-
-
     std::string responseMessage(buffer, recvBytes);
     std::string responseHeaderStr = responseMessage.substr(0, 28);
     std::string responseContentStr = responseMessage.substr(28);
@@ -137,9 +117,11 @@ std::string readJsonFile(const std::string &filePath)
 // 获取当前毫秒级时间戳
 long long getCurrentTimeMillis()
 {
-    auto now = std::chrono::steady_clock::now();
+    auto now = std::chrono::system_clock::now();
     auto duration = now.time_since_epoch();
-    return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+    auto res = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+    std::cout << "res: " << res << std::endl;
+    return res;
 }
 
 std::string formatResponse(std::string contentStr)

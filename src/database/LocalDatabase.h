@@ -36,7 +36,7 @@ public:
     static LocalDatabase* getInstance(const std::string& filePath = "");
 
     // 获取 JSON 对象
-    json getJsonDatabase() const;
+    json& getJsonDatabase();
 
     // 设置 JSON 对象
     void setJsonDatabase(const json& obj);

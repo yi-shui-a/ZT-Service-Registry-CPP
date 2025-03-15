@@ -13,7 +13,7 @@ json RequestController::handleRegister(Header &header, json &content)
     /**
      * @brief 处理数据，修改数据库
      */
-    json res = service.processData(content);
+    json res = service.processData(header, content);
     /**
      * @brief 生成返回值json，返回json
      */
