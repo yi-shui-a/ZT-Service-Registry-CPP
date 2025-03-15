@@ -119,7 +119,7 @@ bool LocalDatabaseDao::addInstanceList(std::string service)
     if (LocalDatabaseDao::existService(service))
     {
         LocalDatabase *database = LocalDatabase::getInstance();
-        json& serviceList = database->getJsonDatabase()["services"];
+        json &serviceList = database->getJsonDatabase()["services"];
         for (json &element : serviceList)
         {
             if (element["service_name"] == service && !element.contains("instances"))
@@ -145,7 +145,7 @@ std::string LocalDatabaseDao::addInstance(std::string service, std::string serve
     {
         LocalDatabaseDao::addInstanceList(service);
     }
-    json& serviceList = database->getJsonDatabase()["services"];
+    json &serviceList = database->getJsonDatabase()["services"];
     for (json &element : serviceList)
     {
         if (element["service_name"] == service)
@@ -167,22 +167,142 @@ std::string LocalDatabaseDao::addInstance(std::string service, std::string serve
     return "ERROR: (addService) Service does not exist";
 }
 
-// json LocalDatabaseDao::setMetadata(std::string &service, json metadata);
-// json LocalDatabaseDao::setInstanceMetadata(std::string &service, std::string &instanceId, json metadata);
-
-
-bool LocalDatabaseDao::updateInstance(std::string service, std::string server, std::string address, int port, long long heartbeatTime ,int role){
-    if(!LocalDatabaseDao::existInstance(service,server)){
-        std::cout<<"INFO: (updateInstance) Instance does not exist"<<std::endl;
+bool LocalDatabaseDao::addMetadata(std::string service)
+{
+    if (LocalDatabaseDao::existService(service))
+    {
+        std::cout << "INFO: (addMetadata) Service already exists" << std::endl;
         return false;
     }
     LocalDatabase *database = LocalDatabase::getInstance();
-    json& serviceList = database->getJsonDatabase()["services"];
-    for (json &element : serviceList){
-        if(element["service_name"] == service){
-            json instanceList = element["instances"];
-            for (json &instance : instanceList){
-                if(instance["server_name"] == server){
+    json &serviceList = database->getJsonDatabase()["services"];
+    for (json &element : serviceList)
+    {
+        if (element["service_name"] == service)
+        {
+            element["metadata"] = json::object();
+            return true;
+        }
+    }
+    return false;
+}
+
+bool LocalDatabaseDao::addMetadata(std::string service, json metadata)
+{
+    if (!LocalDatabaseDao::existService(service))
+    {
+        std::cout << "INFO: (addMetadata) Service does not exists" << std::endl;
+        return false;
+    }
+    LocalDatabase *database = LocalDatabase::getInstance();
+    json &serviceList = database->getJsonDatabase()["services"];
+    for (json &element : serviceList)
+    {
+        if (element["service_name"] == service)
+        {
+            element["metadata"] = metadata;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool LocalDatabaseDao::addInstanceMetadata(std::string service, std::string server)
+{
+    if (!LocalDatabaseDao::existInstance(service, server))
+    {
+        std::cout << "INFO: (addInstanceMetadata) Instance does not exist" << std::endl;
+        return false;
+    }
+    LocalDatabase *database = LocalDatabase::getInstance();
+    json &serviceList = database->getJsonDatabase()["services"];
+    for (json &element : serviceList)
+    {
+        if (element["service_name"] == service)
+        {
+            json &instanceList = element["instances"];
+            for (json &instance : instanceList)
+            {
+                if (instance["server_name"] == server)
+                {
+                    instance["metadata"] = json::object();
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+
+bool LocalDatabaseDao::addInstanceMetadata(std::string service, std::string server, json metadata)
+{
+    if (!LocalDatabaseDao::existInstance(service, server))
+    {
+        std::cout << "INFO: (addInstanceMetadata) Instance does not exist" << std::endl;
+        return false;
+    }
+    LocalDatabase *database = LocalDatabase::getInstance();
+    json &serviceList = database->getJsonDatabase()["services"];
+    for (json &element : serviceList)
+    {
+        if (element["service_name"] == service)
+        {
+            json &instanceList = element["instances"];
+            for (json &instance : instanceList)
+            {
+                if (instance["server_name"] == server)
+                {
+                    instance["metadata"] = metadata;
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool LocalDatabaseDao::updateMetadata(std::string service, json metadata)
+{
+    if (!LocalDatabaseDao::existService(service))
+    {
+        std::cout << "INFO: (updateMetadata) Service does not exist" << std::endl;
+        return false;
+    }
+    LocalDatabase *database = LocalDatabase::getInstance();
+    json &serviceList = database->getJsonDatabase()["services"];
+    for (json &element : serviceList)
+    {
+        if (element["service_name"] == service)
+        {
+            // 遍历metadata中的元素，如果element存在该元素，更新element中的元素；如果不存在，将该元素添加到element中
+            for(auto& item : metadata.items()){
+                element["metadata"][item.key()] = item.value();
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+bool LocalDatabaseDao::updateInstance(std::string service, std::string server, std::string address, int port, long long heartbeatTime, int role)
+{
+    if (!LocalDatabaseDao::existInstance(service, server))
+    {
+        std::cout << "INFO: (updateInstance) Instance does not exist" << std::endl;
+        return false;
+    }
+    LocalDatabase *database = LocalDatabase::getInstance();
+    json &serviceList = database->getJsonDatabase()["services"];
+    for (json &element : serviceList)
+    {
+        if (element["service_name"] == service)
+        {
+            json &instanceList = element["instances"];
+            for (json &instance : instanceList)
+            {
+                if (instance["server_name"] == server)
+                {
                     instance["address"] = address;
                     instance["port"] = port;
                     instance["heartbeat_time"] = heartbeatTime;
@@ -193,9 +313,64 @@ bool LocalDatabaseDao::updateInstance(std::string service, std::string server, s
             }
         }
     }
+    return false;
 }
 
+bool LocalDatabaseDao::updateInstanceMetadata(std::string service, std::string server, json metadata)
+{
+    if (!LocalDatabaseDao::existInstance(service, server))
+    {
+        std::cout << "INFO: (updateInstanceMetadata) Instance does not exist" << std::endl;
+        return false;
+    }
+    LocalDatabase *database = LocalDatabase::getInstance();
+    json &serviceList = database->getJsonDatabase()["services"];
+    for (json &element : serviceList)
+    {
+        if (element["service_name"] == service)
+        {
+            json &instanceList = element["instances"];
+            for (json &instance : instanceList)
+            {
+                if (instance["server_name"] == server)
+                {
+                    // 遍历metadata中的元素，如果instance存在该元素，更新instance中的元素；如果不存在，将该元素添加到instance中
+                    for(auto& item : metadata.items()){
+                        instance["metadata"][item.key()] = item.value();
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
 
+bool LocalDatabaseDao::updateInstanceHeartbeatTime(std::string service, std::string server, long long heartbeatTime)
+{
+    if (!LocalDatabaseDao::existInstance(service, server))
+    {
+        std::cout << "INFO: (updateInstanceHeartbeatTime) Instance does not exist" << std::endl;
+        return false;
+    }
+    LocalDatabase *database = LocalDatabase::getInstance();
+    json &serviceList = database->getJsonDatabase()["services"];
+    for (json &element : serviceList)
+    {
+        if (element["service_name"] == service)
+        {
+            json &instanceList = element["instances"];
+            for (json &instance : instanceList)
+            {
+                if (instance["server_name"] == server)
+                {
+                    instance["heartbeat_time"] = heartbeatTime;
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
 
 std::string LocalDatabaseDao::generateInstanceId(std::string &service, std::string &server, long long heartbeatTime)
 {

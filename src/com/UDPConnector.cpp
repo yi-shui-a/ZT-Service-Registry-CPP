@@ -184,20 +184,20 @@ json handleRequest(Header &header, json &content)
             throw;
         }
         break;
-    // case 3:
-    //     printf("mission: 3\n");
-    //     // strcpy(response_message, processMetaRegisterMessage(database, data_buffer));
-    //     try
-    //     {
-    //         resJson = RequestController::handleMetaRegister(header, content);
-    //     }
-    //     catch (const std::exception &e)
-    //     {
-    //         std::cerr << e.what() << '\n';
-    //         std::cout << "WARNNING: handleMetaRegister error" << std::endl;
-    //         throw;
-    //     }
-    //     break;
+    case 3:
+        printf("mission: 3\n");
+        // strcpy(response_message, processMetaRegisterMessage(database, data_buffer));
+        try
+        {
+            resJson = RequestController::handleMetaRegister(header, content);
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << e.what() << '\n';
+            std::cout << "WARNNING: handleMetaRegister error" << std::endl;
+            throw;
+        }
+        break;
     // case 5:
     //     printf("mission: 5\n");
     //     // strcpy(response_message, processQuery(database, data_buffer));
@@ -246,6 +246,7 @@ Header parseHeader(std::string &msg)
         std::cerr << e.what() << '\n';
         std::cerr << "Header parse error" << std::endl;
     }
+    return Header();
 }
 json parseContent(std::string &msg)
 {
@@ -258,6 +259,7 @@ json parseContent(std::string &msg)
         std::cerr << e.what() << '\n';
         std::cerr << "Content parse error" << std::endl;
     }
+    return json::object();
 }
 
 std::string formatResponse(Header resquestHeader, json content)

@@ -1,0 +1,8 @@
+{
+    "jsonFilePath": "../message_example/metadata.json",
+    "header": {
+        "type": 3
+    },
+    "broadcastAddress": "255.255.255.255",
+    "port": 10450
+}

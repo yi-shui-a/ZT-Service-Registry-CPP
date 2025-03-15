@@ -45,13 +45,21 @@ public:
     static bool addService(std::string service);
     static bool addInstanceList(std::string service);
     static std::string addInstance(std::string service, std::string server, std::string address, int port, long long heartbeatTime,int role);
+    static bool addMetadata(std::string service);
+    static bool addMetadata(std::string service, json metadata);
+    static bool addInstanceMetadata(std::string service, std::string server);
+    static bool addInstanceMetadata(std::string service, std::string server, json metadata);
+
+
 
     static json setMetadata(std::string &service, json metadata);
     static json setInstanceMetadata(std::string &service, std::string &instanceId, json metadata);
 
     static bool updateService(std::string service);
-    static bool updateMetadata(std::string service);
+    static bool updateMetadata(std::string service, json metadata);
     static bool updateInstance(std::string service, std::string server, std::string address, int port, long long heartbeatTime ,int role);
+    static bool updateInstanceMetadata(std::string service, std::string server, json metadata);
+    static bool updateInstanceHeartbeatTime(std::string service, std::string server, long long heartbeatTime);
 
     static int getServiceCount();
     static int getServiceInstanceCount(std::string &service);

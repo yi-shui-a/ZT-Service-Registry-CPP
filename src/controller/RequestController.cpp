@@ -14,6 +14,22 @@ json RequestController::handleRegister(Header &header, json &content)
 
 }
 
+json RequestController::handleMetaRegister(Header &header, json &content)
+{
+    /**
+     * @brief 初始化服务
+     */
+    MetadataService service = MetadataService();
+    /**
+     * @brief 处理服务
+     * 
+    */
+    return RequestController::handleService(service, header, content);
+
+}
+
+
+
 json RequestController::handleService(Service& service, Header &header, json &content){
     /**
      * @brief 检查数据正确性

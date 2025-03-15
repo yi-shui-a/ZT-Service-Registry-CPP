@@ -12,6 +12,8 @@
 // 使用 nlohmann/json 库
 using json = nlohmann::json;
 
+json configData;
+
 // UDP 广播函数
 void udpBroadcastAndReceive(const std::string &message, const std::string &broadcastAddress, int target_port)
 {
@@ -132,7 +134,7 @@ std::string formatResponse(std::string contentStr)
     header.messageLength = contentStr.length();
     header.serialNumber = 1;
     header.checkBit = 1;
-    header.type = 1;
+    header.type = configData["header"]["type"];;
     std::string headerStr = Header::serialize(header);
 
     return headerStr + contentStr;
@@ -140,8 +142,20 @@ std::string formatResponse(std::string contentStr)
 
 int main()
 {
+    // 读取配置 JSON 文件
+    std::string configFilePath = "example.json"; // 配置文件的路径
+    std::ifstream configFile(configFilePath);
+    if (!configFile.is_open())
+    {
+        std::cerr << "Error: Could not open config JSON file" << std::endl;
+        return 1;
+    }
+    // 解析配置 JSON 文件configData
+    configFile >> configData;
+
     // JSON 文件路径
-    std::string jsonFilePath = "../message_example/register.json";
+    // std::string jsonFilePath = "../message_example/register.json";
+    std::string jsonFilePath = configData["jsonFilePath"];
 
     // 从 JSON 文件读取数据
     std::string contentStr = readJsonFile(jsonFilePath);

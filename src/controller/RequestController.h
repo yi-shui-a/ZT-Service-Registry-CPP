@@ -8,6 +8,7 @@
 #include "../model/entity/Header.h"
 #include "../service/Service.h"
 #include "../service/RegisterService.h"
+#include "../service/MetadataService.h"
 
 #include <nlohmann/json.hpp>
 
@@ -29,7 +30,6 @@ class RequestController {
 
 public:
     static json handleService(Service& service, Header &header, json &content);
-
     static json handleRegister(Header& header,json& content);
     static json handleMetaRegister(Header& header,json& content);
     static json handleQuery(Header& header,json& content);
