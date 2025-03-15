@@ -58,3 +58,5 @@ json RegisterService::processData(Header &header, const json &content)
     std::cout << "INFO: RegisterService: Process data finished" << std::endl;
     return responseJson;
 }
+
+

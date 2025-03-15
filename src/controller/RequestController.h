@@ -9,6 +9,8 @@
 #include "../service/Service.h"
 #include "../service/RegisterService.h"
 #include "../service/MetadataService.h"
+#include "../service/QueryService.h"
+#include "../service/HeartbeatService.h"
 
 #include <nlohmann/json.hpp>
 

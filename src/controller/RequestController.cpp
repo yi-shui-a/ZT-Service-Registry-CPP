@@ -28,6 +28,34 @@ json RequestController::handleMetaRegister(Header &header, json &content)
 
 }
 
+json RequestController::handleQuery(Header &header, json &content)
+{
+    /**
+     * @brief 初始化服务
+     */
+    QueryService service = QueryService();
+    /**
+     * @brief 处理服务
+     * 
+    */
+    return RequestController::handleService(service, header, content);
+
+}
+
+json RequestController::handleHeartbeat(Header &header, json &content)
+{
+    /**
+     * @brief 初始化服务
+     */
+    HeartbeatService service = HeartbeatService();
+    /**
+     * @brief 处理服务
+     * 
+    */
+    return RequestController::handleService(service, header, content);
+
+}
+
 
 
 json RequestController::handleService(Service& service, Header &header, json &content){

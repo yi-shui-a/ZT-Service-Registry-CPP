@@ -33,6 +33,7 @@ public:
 
     static std::string getInstanceId(std::string &service, std::string &server);
     static std::vector<std::string> getInstanceIdList(std::string &service);
+    static json getInstanceList(const std::string &service);
     static json getMetadata(std::string &service);
     static json getInstanceMetadata(std::string &service, std::string &instanceId);
     static json getInstanceServer(std::string &service, std::string &instanceId);

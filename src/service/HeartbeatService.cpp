@@ -17,44 +17,30 @@ bool HeartbeatService::isValidData(const json &content)
     {
         if (!element.contains("service_name"))
             return false;
-        if (!element.contains("role"))
-            return false;
     }
-    std::cout << "INFO: RegisterService: Validate data finished" << std::endl;
+    std::cout << "INFO: HeartbeatService: Validate data finished" << std::endl;
     return true;
 }
 
 // 实现 processData 函数
 json HeartbeatService::processData(Header &header, const json &content)
 {
-    // 遍历json数组
+
+    //遍历services_list
     for (const json &element : content["services_list"])
     {
-        // 如果本就存在该instance，修改关键信息
-        if (LocalDatabaseDao::existInstance(element["service_name"], content["server_name"]))
-        {
-            LocalDatabaseDao::updateInstance(element["service_name"], content["server_name"], content["address"], content["port"], header.sendTime, element["role"]);
+        if(!LocalDatabaseDao::existInstance(element["service_name"], content["server_name"])){
+            std::cout << "INFO: HeartbeatService: Instance " << content["server_name"] << " not exist" << std::endl;
+            continue;
         }
-        else
-        {
-            // 如果不存在该instance，添加instance
-            if (LocalDatabaseDao::existService(element["service_name"]))
-            {
-                if (!LocalDatabaseDao::existInstanceList(element["service_name"]))
-                {
-                    LocalDatabaseDao::addInstanceList(element["service_name"]);
-                }
-            }
-            else
-            {
-                LocalDatabaseDao::addService(element["service_name"]);
-            }
-            LocalDatabaseDao::addInstance(element["service_name"], content["server_name"], content["address"], content["port"], header.sendTime, element["role"]);
-        }
+        //如果存在该instance，修改关键信息
+        LocalDatabaseDao::updateInstanceHeartbeatTime(element["service_name"], content["server_name"], header.sendTime);
     }
+    
     // 构造返回的json对象
-    json responseJson;
-    responseJson["server_name"] = content["server_name"];
-    std::cout << "INFO: RegisterService: Process data finished" << std::endl;
+    // 返回一个空的json对象
+    json responseJson = json::object();
+    // responseJson["server_name"] = content["server_name"];
+    // std::cout << "INFO: HeartbeatService: Process data finished" << std::endl;
     return responseJson;
 }

@@ -172,7 +172,6 @@ json handleRequest(Header &header, json &content)
     {
     case 1:
         printf("mission: 1\n");
-        // strcpy(response_message, processRegisterMessage(database, data_buffer));
         try
         {
             resJson = RequestController::handleRegister(header, content);
@@ -186,7 +185,6 @@ json handleRequest(Header &header, json &content)
         break;
     case 3:
         printf("mission: 3\n");
-        // strcpy(response_message, processMetaRegisterMessage(database, data_buffer));
         try
         {
             resJson = RequestController::handleMetaRegister(header, content);
@@ -198,34 +196,33 @@ json handleRequest(Header &header, json &content)
             throw;
         }
         break;
-    // case 5:
-    //     printf("mission: 5\n");
-    //     // strcpy(response_message, processQuery(database, data_buffer));
-    //     try
-    //     {
-    //         resJson = RequestController::handleQuery(header, content);
-    //     }
-    //     catch (const std::exception &e)
-    //     {
-    //         std::cerr << e.what() << '\n';
-    //         std::cout << "WARNNING: handleQuery error" << std::endl;
-    //         throw;
-    //     }
-    //     break;
-    // case 7:
-    //     printf("mission: 7\n");
-    //     // processHeartbeat(database, data_buffer);
-    //     try
-    //     {
-    //         resJson = RequestController::handleHeartbeat(header, content);
-    //     }
-    //     catch (const std::exception &e)
-    //     {
-    //         std::cerr << e.what() << '\n';
-    //         std::cout << "WARNNING: handleHeartbeat error" << std::endl;
-    //         throw;
-    //     }
-    //     break;
+    case 5:
+        printf("mission: 5\n");
+        try
+        {
+            resJson = RequestController::handleQuery(header, content);
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << e.what() << '\n';
+            std::cout << "WARNNING: handleQuery error" << std::endl;
+            throw;
+        }
+        break;
+    case 7:
+        printf("mission: 7\n");
+        // processHeartbeat(database, data_buffer);
+        try
+        {
+            resJson = RequestController::handleHeartbeat(header, content);
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << e.what() << '\n';
+            std::cout << "WARNNING: handleHeartbeat error" << std::endl;
+            throw;
+        }
+        break;
     default:
         printf("Received error message");
         // throw std::runtime_error("Received error message");

@@ -99,6 +99,24 @@ bool LocalDatabaseDao::existInstanceMetadata(const std::string &service, const s
     return false;
 }
 
+json LocalDatabaseDao::getInstanceList(const std::string &service){
+    if(!LocalDatabaseDao::existService(service)){
+        std::cout<<"INFO: (getInstanceList) Service does not exist"<<std::endl;
+        return json::object();
+    }
+    LocalDatabase *database = LocalDatabase::getInstance();
+    json serviceList = database->getJsonDatabase()["services"];
+    for (json &element : serviceList){
+        if (element["service_name"] == service){
+            json instanceList = element["instances"];
+            return instanceList;
+        }
+    }
+    return json::object();
+}
+
+
+
 bool LocalDatabaseDao::addService(std::string service)
 {
     if (LocalDatabaseDao::existService(service))
@@ -169,9 +187,9 @@ std::string LocalDatabaseDao::addInstance(std::string service, std::string serve
 
 bool LocalDatabaseDao::addMetadata(std::string service)
 {
-    if (LocalDatabaseDao::existService(service))
+    if (!LocalDatabaseDao::existService(service))
     {
-        std::cout << "INFO: (addMetadata) Service already exists" << std::endl;
+        std::cout << "INFO: (addMetadata) Service does not exist" << std::endl;
         return false;
     }
     LocalDatabase *database = LocalDatabase::getInstance();
@@ -191,7 +209,7 @@ bool LocalDatabaseDao::addMetadata(std::string service, json metadata)
 {
     if (!LocalDatabaseDao::existService(service))
     {
-        std::cout << "INFO: (addMetadata) Service does not exists" << std::endl;
+        std::cout << "INFO: (addMetadata) Service does not exist" << std::endl;
         return false;
     }
     LocalDatabase *database = LocalDatabase::getInstance();
