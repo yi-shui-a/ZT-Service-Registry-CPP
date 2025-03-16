@@ -1,5 +1,5 @@
 cd ./bin/
-./ZT-Service-Registry-CPP --configPath ./../config/config_new.json
+./ZT-Service-Registry-CPP --configPath ./../config/config.json
 
 
 # ./bin/ZT-Service-Registry-CPP --configPath ./config.json
