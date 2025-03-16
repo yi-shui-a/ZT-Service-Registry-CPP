@@ -1,0 +1,52 @@
+{
+    "services": [
+        {
+            "instances": [
+                {
+                    "address": "localhost",
+                    "heartbeat_time": 1742049425866,
+                    "instance_id": "serverB-atomic_service_mbsb-1742049425866",
+                    "metadata": {
+                        "card": "atlas",
+                        "os": "openeuler"
+                    },
+                    "port": 50051,
+                    "role": 1,
+                    "server_name": "serverB",
+                    "status": "UP"
+                }
+            ],
+            "metadata": {
+                "build_time": "2024-09-21T09-21-21",
+                "decription": "information about atomic_service_mbsb",
+                "developer": "Spiderman",
+                "version": "V1.0.0"
+            },
+            "service_name": "atomic_service_mbsb"
+        },
+        {
+            "instances": [
+                {
+                    "address": "localhost",
+                    "heartbeat_time": 1742049425866,
+                    "instance_id": "serverB-atomic_service_sf-1742049425866",
+                    "metadata": {
+                        "card": "atlas",
+                        "os": "openeuler"
+                    },
+                    "port": 50051,
+                    "role": 1,
+                    "server_name": "serverB",
+                    "status": "UP"
+                }
+            ],
+            "metadata": {
+                "build_time": "2024-09-30T09-21-21",
+                "decription": "",
+                "developer": "yishui",
+                "version": "V1.0.2"
+            },
+            "service_name": "atomic_service_sf"
+        }
+    ]
+}

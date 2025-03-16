@@ -64,8 +64,8 @@ void LocalDatabase::startTimer()
     timerThread = std::thread([this]()
                               {
         while (true) {
-            // 模拟每 5 秒执行一次操作
-            std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+            // 模拟每 10 秒执行一次操作
+            std::this_thread::sleep_for(std::chrono::milliseconds(10000));
             // 在这里对 database 执行相关操作
             std::cout << "Current database: \n" << database.dump(4) << std::endl;
         } });
