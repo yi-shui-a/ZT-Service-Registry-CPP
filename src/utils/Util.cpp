@@ -50,3 +50,19 @@ long long Util::getCurrentTimeMillis() {
     auto duration = now.time_since_epoch();
     return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 }
+
+
+json Util::parseArgs(int argc, char* argv[]){
+    json args;
+    for (int i = 1; i < argc; i++) {
+        std::string arg = argv[i];
+        if (arg.find("--") == 0) {
+            std::string key = arg.substr(2);
+            if(argv[i+1] != nullptr && argv[i+1][0] != '-'){
+                std::string value = argv[i+1];
+                args[key] = value;
+            }
+        }
+    }
+    return args;
+}

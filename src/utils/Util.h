@@ -12,6 +12,8 @@ using json = nlohmann::json;
 
 class Util {
 public:
+    // 解析argv
+    static json parseArgs(int argc, char* argv[]);
     // 清除文件内容
     static void clearFile(const std::string& filepath);
     // 计算两个整数 a 和 b 的最大公约数。

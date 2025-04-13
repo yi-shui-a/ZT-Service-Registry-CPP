@@ -29,36 +29,31 @@ int main(int argc, char *argv[])
     /**
      * 加载运行参数argc和argv
      * 
-     * + 获取配置文件路径
      */
-    std::string configPath;
+    json args;
     try
     {
-        // 先判断json中是否存在configPath属性
-        if (!ConfigUtil::parsePathFromArgs(argc, argv).contains("configPath"))
-        {
-            configPath = "config.json";
-        }
-        else
-        {
-            configPath = ConfigUtil::parsePathFromArgs(argc, argv)["configPath"];
-        }
-        std::cout << "got configPath!!!" << std::endl
-                  << "configPath: " << configPath << std::endl;
+        json args = Util::parseArgs(argc, argv);
     }
-    catch (const std::exception &e)
+    catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
-        std::cerr << "configPath load fail" << '\n';
-        exit(EXIT_FAILURE);
+        std::cerr << "parseArgs error" << '\n';
     }
+
 
     /**
      * 加载全局配置文件
      */
     Config *config;
     // 获取 Config 单例实例
-    config = Config::getInstance(configPath);
+    if (args.contains("configPath"))
+    {
+        config = Config::getInstance(args["configPath"]);
+    }else
+    {
+        config = Config::getInstance("");
+    }
 
     /**
      * 获取设备锁

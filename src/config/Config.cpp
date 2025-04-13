@@ -27,7 +27,10 @@ std::string Config::LOCKFILE = "../config/standby.json";
 
 // 私有构造函数
 Config::Config(const std::string &filePath) {
-    configFilePath = filePath;
+    std::string configPathDefault =  "config.json";
+    if (filePath == "") {
+        configFilePath = configPathDefault;
+    }
     json configData;
     std::ifstream file(filePath);
     if (file.is_open()) {
