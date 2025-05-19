@@ -7,6 +7,8 @@ project(ZT-Service-Registry-CPP)
 # 设置 C++ 标准
 set(CMAKE_CXX_STANDARD 11)
 
+find_package(Threads REQUIRED)  # 查找系统的线程库
+
 # 查找 src 目录下的所有 .cpp 和 .h 文件
 file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.h")
 
@@ -18,7 +20,9 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 
 # 包含 nlohmann/json 库
 find_package(nlohmann_json 3.2.0 REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} PRIVATE 
+    nlohmann_json::nlohmann_json
+    Threads::Threads)
 
 # 如果你需要链接其他库，可以继续在这里添加
 # 例如：
